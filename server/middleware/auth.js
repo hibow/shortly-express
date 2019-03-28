@@ -15,6 +15,7 @@ module.exports.createSession = (req, res, next) => {
     req.session.hash = cookieValue[0];
     next();
   }
+  
   // return !Object.keys(req.cookies).length
   // .then(bool => {
   //   if (bool) {
