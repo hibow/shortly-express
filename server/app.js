@@ -14,17 +14,13 @@ app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+//use middleware
+const CookieParser = require('./middleware/cookieParser');
 
 
-
-app.get('/',
+app.get('/', CookieParser, Auth.createSession, 
   (req, res, next) => {
-    return Auth.createSession(req, res, next)
-      .then(() => {
-        console.log('run here!');
-        res.render('index');
-
-      });
+    res.render('index');
   });
 
 app.get('/create',
@@ -42,6 +38,11 @@ app.get('/login',
     res.render('login');
   });
 
+app.get('/logout', Auth.deleteSession,
+  (req, res) => {
+    res.redirect('/login');
+  }); 
+  
 app.get('/links',
   (req, res, next) => {
     models.Links.getAll()
@@ -94,24 +95,20 @@ app.post('/signup',
   (req, res, next) => {
     let username = req.body.username;
     let pw = req.body.password;
-
     return models.Users.get({ username })
       .then(user => {
         if (user) {
           res.redirect('/signup');
-          next();
         } else {
-          return models.Users.create({ username, password: pw });
+          models.Users.create({ username, password: pw });
+          next();
         }
-      })
-      .then(result => {
-        // module.export.userId = result.insertId;
-        res.redirect('/');
-        next();
       })
       .catch(err => {
         console.log(err);
       });
+  }, CookieParser, Auth.createSession, function(req, res, next) {
+    res.redirect('/');
   });
 
 app.post('/login',
@@ -125,10 +122,8 @@ app.post('/login',
       .then(match => {
         if (match) {
           res.redirect('/');
-          next();
         } else {
           res.redirect('/login');
-          next();
         }
       })
       .catch(err => {

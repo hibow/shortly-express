@@ -1,5 +1,3 @@
-// const models = require('../models');
-
 const parseCookies = (req, res, next) => {
   if (typeof req.headers.cookie === 'string') {
     let allCookies = req.headers.cookie.split(';');
@@ -11,6 +9,7 @@ const parseCookies = (req, res, next) => {
     req.cookies = Object.assign({}, parsedCookies);
     return next();
   } else {
+    req.cookies = {};
     return next();
   } 
 };

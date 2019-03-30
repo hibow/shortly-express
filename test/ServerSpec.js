@@ -537,6 +537,7 @@ describe('', function() {
 
         db.query(queryString, cookieValue, function(error, users) {
           if (error) { return done(error); }
+
           var user = users[0];
           expect(user.username).to.equal('Vivian');
           done();

@@ -1,15 +1,21 @@
 const models = require('../models');
 const Promise = require('bluebird');
-const hashUtil = require('../lib/hashUtils');
 
 module.exports.createSession = (req, res, next) => {
-  console.log('run createSession');
-  if (!Object.keys(req.cookies).length) {
+  if (!Object.keys(req.cookies).length) { // checks to see if a cookie exist
     models.Sessions.create()
       .then(session => {
         models.Sessions.get({ id: session.insertId })
           .then(parsedSession => {
             req.session = parsedSession;
+            if (req.body.username) {
+              models.Users.get({ username: req.body.username })
+                .then(userRecord => {
+                  req.session.user = userRecord;
+                  req.session.userId = userRecord.id;
+                  models.Sessions.update({ id: parsedSession.id }, { userId: req.session.userId });
+                });
+            }
             res.cookie('shortlyid', parsedSession.hash);
             next();
           });
@@ -45,3 +51,15 @@ module.exports.createSession = (req, res, next) => {
 // Add additional authentication middleware functions below
 /************************************************************/
 
+module.exports.deleteSession = (req, res, next) => {
+  // if (Object.keys(req.cookies).length) { 
+  req.session = { user: {}, hash: req.cookies };
+  models.Sessions.delete({ hash: req.cookies.shortlyid })
+    .then(() => {
+      req.session = {};
+      req.cookies = {};
+      req.cookie = {};
+      this.createSession(req, res, next);
+    });
+  // }
+};
