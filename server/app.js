@@ -18,8 +18,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 app.get('/',
-  (req, res) => {
-    res.render('index');
+  (req, res, next) => {
+    return Auth.createSession(req, res, next)
+      .then(() => {
+        console.log('run here!');
+        res.render('index');
+
+      });
   });
 
 app.get('/create',
@@ -100,6 +105,7 @@ app.post('/signup',
         }
       })
       .then(result => {
+        // module.export.userId = result.insertId;
         res.redirect('/');
         next();
       })
