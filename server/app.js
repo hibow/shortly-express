@@ -38,7 +38,7 @@ app.get('/login',
     res.render('login');
   });
 
-app.get('/logout', Auth.deleteSession,
+app.get('/logout', CookieParser, Auth.deleteSession,
   (req, res) => {
     res.redirect('/login');
   }); 
