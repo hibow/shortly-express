@@ -18,15 +18,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 const CookieParser = require('./middleware/cookieParser');
 
 
-app.get('/', CookieParser, Auth.createSession, 
-  (req, res, next) => {
-    res.render('index');
-  });
 
-app.get('/create',
-  (req, res) => {
-    res.render('index');
-  });
+
 
 app.get('/signup',
   (req, res) => {
@@ -38,20 +31,46 @@ app.get('/login',
     res.render('login');
   });
 
+app.get('/', CookieParser, Auth.createSession,
+  (req, res, next) => {
+    let bool = models.Sessions.isLoggedIn(req.session);
+    if (bool) {
+      res.render('index');
+    } else {
+      res.redirect('/login');
+    }
+  });
+
+app.get('/create', CookieParser, Auth.createSession,
+  (req, res) => {
+    let bool = models.Sessions.isLoggedIn(req.session);
+    if (bool) {
+      res.render('index');
+    } else {
+      res.redirect('/login');
+    }
+  });
+
 app.get('/logout', CookieParser, Auth.deleteSession,
   (req, res) => {
     res.redirect('/login');
-  }); 
-  
-app.get('/links',
+  });
+
+app.get('/links', CookieParser, Auth.deleteSession,
   (req, res, next) => {
-    models.Links.getAll()
-      .then(links => {
-        res.status(200).send(links);
-      })
-      .error(error => {
-        res.status(500).send(error);
-      });
+    let bool = models.Sessions.isLoggedIn(req.session);
+    if (bool) {
+      models.Links.getAll()
+        .then(links => {
+          res.status(200).send(links);
+        })
+        .error(error => {
+          res.redirect('index');
+          res.status(500).send(error);
+        });
+    } else {
+      res.redirect('/login');
+    }
   });
 
 app.post('/links',
@@ -107,7 +126,7 @@ app.post('/signup',
       .catch(err => {
         console.log(err);
       });
-  }, CookieParser, Auth.createSession, function(req, res, next) {
+  }, CookieParser, Auth.createSession, function (req, res, next) {
     res.redirect('/');
   });
 
@@ -115,13 +134,14 @@ app.post('/login',
   (req, res, next) => {
     return models.Users.get({ username: req.body.username })
       .then(obj => {
+        // console.log(obj, 'user object')
         if (obj.username) {
           return models.Users.compare(req.body.password, obj.password, obj.salt);
         }
       })
       .then(match => {
         if (match) {
-          res.redirect('/');
+          next();
         } else {
           res.redirect('/login');
         }
@@ -130,6 +150,8 @@ app.post('/login',
         res.redirect('/login');
         next();
       });
+  }, CookieParser, Auth.createSession, function (req, res, next) {
+    res.redirect('/');
   });
 /************************************************************/
 // Write your authentication routes here
@@ -144,7 +166,6 @@ app.post('/login',
 /************************************************************/
 
 app.get('/:code', (req, res, next) => {
-
   return models.Links.get({ code: req.params.code })
     .tap(link => {
 

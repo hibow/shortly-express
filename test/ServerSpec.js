@@ -537,7 +537,6 @@ describe('', function() {
 
         db.query(queryString, cookieValue, function(error, users) {
           if (error) { return done(error); }
-
           var user = users[0];
           expect(user.username).to.equal('Vivian');
           done();
@@ -596,7 +595,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Link creation:', function() {
+  describe('Link creation:', function() {
 
     var cookies = request.jar();
     var requestWithSession = request.defaults({ jar: cookies });
@@ -609,7 +608,7 @@ describe('', function() {
       }
     };
 
-    xbeforeEach(function(done) {
+    beforeEach(function(done) {
       var options = {
         'method': 'POST',
         'followAllRedirects': true,
@@ -620,6 +619,16 @@ describe('', function() {
         }
       };
       requestWithSession(options, done);
+      // var options1 = {
+      //   'method': 'POST',
+      //   'followAllRedirects': true,
+      //   'uri': 'http://127.0.0.1:4568/login',
+      //   'json': {
+      //     'username': 'Vivian',
+      //     'password': 'Vivian'
+      //   }
+      // };
+      // requestWithSession(options1, done);
     });
 
     afterEach(function(done) {

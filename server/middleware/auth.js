@@ -9,10 +9,13 @@ module.exports.createSession = (req, res, next) => {
           .then(parsedSession => {
             req.session = parsedSession;
             if (req.body.username) {
+              console.log(req.body.username, 'THIS IS THE FIRST IF');
               models.Users.get({ username: req.body.username })
                 .then(userRecord => {
-                  req.session.user = userRecord;
-                  req.session.userId = userRecord.id;
+                  if (userRecord.id) {
+                    req.session.user = userRecord;
+                    req.session.userId = userRecord.id;
+                  }
                   models.Sessions.update({ id: parsedSession.id }, { userId: req.session.userId });
                 });
             }
@@ -21,13 +24,18 @@ module.exports.createSession = (req, res, next) => {
           });
       });
   } else {
+    console.log(req.body, 'WHAT DOES THE BODY LOOK LIKE');
     req.session = { user: {}, hash: req.cookies };
     models.Sessions.get({ hash: req.cookies.shortlyid })
       .then(session => {
         if (session) {
+          // console.log(`a session exists`, session,`the body`, req.body);
+          // models.Users.get({id: session.id})
+          // .then(()=> {
           req.session.user = session.user;
           req.session.userId = session.userId;
           next();
+          // })
         } else {
           models.Sessions.create()
             .then(session => {
