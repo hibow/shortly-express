@@ -35,8 +35,10 @@ app.get('/', CookieParser, Auth.createSession,
   (req, res, next) => {
     let bool = models.Sessions.isLoggedIn(req.session);
     if (bool) {
+      console.log('main: to main', req.session);
       res.render('index');
     } else {
+      console.log('Main: to login');
       res.redirect('/login');
     }
   });
@@ -53,22 +55,27 @@ app.get('/create', CookieParser, Auth.createSession,
 
 app.get('/logout', CookieParser, Auth.deleteSession,
   (req, res) => {
+    console.log('I log out!');
     res.redirect('/login');
   });
 
-app.get('/links', CookieParser, Auth.deleteSession,
+app.get('/links', CookieParser, Auth.createSession,
   (req, res, next) => {
+    console.log('run get links');
     let bool = models.Sessions.isLoggedIn(req.session);
     if (bool) {
+      console.log('get all links');
       models.Links.getAll()
         .then(links => {
           res.status(200).send(links);
         })
         .error(error => {
-          res.redirect('index');
+          //res.redirect('index');
+          console.log('500 error');
           res.status(500).send(error);
         });
     } else {
+      console.log('link to login');
       res.redirect('/login');
     }
   });
@@ -119,6 +126,7 @@ app.post('/signup',
         if (user) {
           res.redirect('/signup');
         } else {
+          console.log('go to sign up');
           models.Users.create({ username, password: pw });
           next();
         }
@@ -126,9 +134,10 @@ app.post('/signup',
       .catch(err => {
         console.log(err);
       });
-  }, CookieParser, Auth.createSession, function (req, res, next) {
+  }, [CookieParser, Auth.createSession, function (req, res, next) {
+    console.log('go to main page');
     res.redirect('/');
-  });
+  }]);
 
 app.post('/login',
   (req, res, next) => {
@@ -148,7 +157,7 @@ app.post('/login',
       })
       .catch(err => {
         res.redirect('/login');
-        next();
+        //next();
       });
   }, CookieParser, Auth.createSession, function (req, res, next) {
     res.redirect('/');

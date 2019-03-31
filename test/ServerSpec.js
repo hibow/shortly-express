@@ -454,7 +454,7 @@ describe('', function() {
                 var session = requestWithCookies.session;
                 expect(session).to.be.an('object');
                 expect(session.user.username).to.eq(username);
-                expect(session.userId).to.eq(userId);                
+                expect(session.userId).to.eq(userId);
                 done();
               });
             });
@@ -619,16 +619,6 @@ describe('', function() {
         }
       };
       requestWithSession(options, done);
-      // var options1 = {
-      //   'method': 'POST',
-      //   'followAllRedirects': true,
-      //   'uri': 'http://127.0.0.1:4568/login',
-      //   'json': {
-      //     'username': 'Vivian',
-      //     'password': 'Vivian'
-      //   }
-      // };
-      // requestWithSession(options1, done);
     });
 
     afterEach(function(done) {
@@ -732,8 +722,9 @@ describe('', function() {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/' + link.code
         };
-
+        console.log('test 34!');
         requestWithSession(options, function(error, res, body) {
+          console.log('test 34 request sent!');
           if (error) { return done(error); }
           var currentLocation = res.request.href;
           expect(currentLocation).to.equal('http://www.google.com/');
@@ -746,8 +737,9 @@ describe('', function() {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/doesNotExist'
         };
-
+        console.log('test 35! start!');
         requestWithSession(options, function(error, res, body) {
+          console.log('test 35! request sent!');
           if (error) { return done(error); }
           var currentLocation = res.request.href;
           expect(currentLocation).to.equal('http://127.0.0.1:4568/');
@@ -760,8 +752,9 @@ describe('', function() {
           'method': 'GET',
           'uri': 'http://127.0.0.1:4568/links'
         };
-
+        console.log('test 36!!');
         requestWithSession(options, function(error, res, body) {
+          console.log('test 36 start!!');
           if (error) { return done(error); }
           expect(body).to.include('"title":"Google"');
           expect(body).to.include('"code":"' + link.code + '"');
