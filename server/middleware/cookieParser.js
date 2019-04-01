@@ -4,14 +4,14 @@ const parseCookies = (req, res, next) => {
     let parsedCookies = {};
     allCookies.forEach(cookie => {
       let obj = cookie.split('=');
-      parsedCookies[obj[0].trim().split("'").join('')] = obj[1];
+      parsedCookies[obj[0].trim().split('\'').join('')] = obj[1];
     });
     req.cookies = Object.assign({}, parsedCookies);
     return next();
   } else {
     req.cookies = {};
     return next();
-  } 
+  }
 };
 
 module.exports = parseCookies;
