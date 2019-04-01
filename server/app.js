@@ -69,6 +69,12 @@ app.get('/links', CookieParser, Auth.createSession,
     }
   });
 
+app.delete('/links',
+  (req, res, next) => {
+    models.Links.deleteAll();
+    next();
+  });
+
 app.post('/links',
   (req, res, next) => {
     var url = req.body.url;
@@ -146,6 +152,9 @@ app.post('/login',
   }, CookieParser, Auth.createSession, function (req, res, next) {
     res.redirect('/');
   });
+
+
+
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/

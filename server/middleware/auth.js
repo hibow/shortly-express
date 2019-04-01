@@ -102,7 +102,32 @@ module.exports.deleteSession = (req, res, next) => {
       req.session = {};
       req.cookies = {};
       req.cookie = {};
-      this.createSession(req, res, next);
+      //this.createSession(req, res, next);
+      models.Sessions.create()
+        .then(session => {
+          models.Sessions.get({ id: session.insertId })
+            .then(parsedSession => {
+              req.session = parsedSession;
+              if (req.body.username) {
+                models.Users.get({ username: req.body.username })
+                  .then(userRecord => {
+                    req.session.user = userRecord;
+                    req.session.userId = userRecord.id;
+                    models.Sessions.update({ id: parsedSession.id }, { userId: req.session.userId });
+                  })
+                  .then((session) => {
+                    res.cookie('shortlyid', parsedSession.hash, {maxAge: 1000});
+                    next();
+                  })
+                  .catch((error) => {
+                    throw error;
+                  });
+              } else {
+                res.cookie('shortlyid', parsedSession.hash, {maxAge: 1000});
+                next();
+              }
+            });
+        });
     });
   // }
 };
