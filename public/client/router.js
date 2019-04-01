@@ -7,7 +7,7 @@ Shortly.Router = Backbone.Router.extend({
     '': 'index',
     'create': 'create',
     'logout': 'logout',
-    'deleteAll': 'logout'
+    'deleteAll': 'deleteAll'
   },
 
   swapView: function(view) {
@@ -15,6 +15,10 @@ Shortly.Router = Backbone.Router.extend({
   },
 
   logout: function() {
+    window.location.reload();
+  },
+
+  deleteAll: () => {
     window.location.reload();
   },
 
