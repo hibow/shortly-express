@@ -5,11 +5,16 @@ Shortly.Router = Backbone.Router.extend({
 
   routes: {
     '': 'index',
-    'create': 'create'
+    'create': 'create',
+    'logout': 'logout'
   },
 
   swapView: function(view) {
     this.$el.html(view.render().el);
+  },
+
+  logout: function() {
+    window.location.reload();
   },
 
   index: function() {

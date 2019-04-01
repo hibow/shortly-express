@@ -43,6 +43,7 @@ app.get('/', CookieParser, Auth.createSession,
     }
   });
 
+
 app.get('/create', CookieParser, Auth.createSession,
   (req, res) => {
     let bool = models.Sessions.isLoggedIn(req.session);
